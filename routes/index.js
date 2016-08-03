@@ -1,114 +1,51 @@
-
-/*
- * GET home page.
- */
+var mq_client = require('../rpc/client');
 
 exports.index = function(req, res){
-	
-	res.render('Welcome', { title: 'Welcome' });
-};
-exports.signupdriver = function(req, res){
-	//req.session.password="HELO";
-	res.render('SignUp_Driver', { title: 'Welcome Driver' });
-	
-};
-exports.signin = function(req, res){
-	//console.log(req.session.password);
-	res.render('SignIn_user', { title: 'Welcome User' });
-};
-exports.requestRide = function(req, res){
-	res.render('Request_Ride', { title: 'Welcome User' });
-};
+	if(req.session.userId) {
+		if(req.session.isUser) {//need to add check for driverSession and redirect to driver homepage
+			var msg_payload = {};
+			msg_payload.apiCall = "checkUserStatus";
+			msg_payload.userId = req.session.userId;
+			mq_client.make_request('user_queue', msg_payload, function (err, results) {
+				if (err) {
+					var json_responses = {
+						"success": 0,
+						"error": "Oops! There was some problem in checking user status. Please try again."
+					};
+					res.send(json_responses);
+				}
+				else {
+					if (results.code == "200") {
+						console.log("successful checkUserStatus");
+						var json_responses = {"success": 1};
+						if (results.rideData) {
+							json_responses.rideData = JSON.stringify(results.rideData);
+							if (results.rideData.status == "REQ") {
+								res.render('rideRequested', json_responses);
+							} else {
+								res.render('rideStarted', json_responses);
+							}
+						} else {
+							res.render('userHomepage');
+						}
+					}
+					else {
 
+						console.log("checkUserStatus Error!");
+						var json_responses = {"success": 0, "error": results.errorMessage};
+						res.send(json_responses);
+						//res.render('fail', {title: 'Failed'});
+					}
 
-exports.rideDetails = function(req, res){
-
-  var https = require('https');
-
-  var source="Colonnade South 4th Street San Jose CA United States";
-
-  var destination="1300, The Almeda, San Jose CA United States";
-
-  var s1 = source.split(" ").join("+");
-
-  var d1 = destination.split(" ").join("+");
-
-  console.log("source: "+s1);
-
-  console.log("destination: "+d1);
-
-  https.get('https://maps.googleapis.com/maps/api/distancematrix/json?origins='+s1+'&destinations='+d1+'&mode=Driving&language=fr-FR&key=AIzaSyDMPbktYAm7BXNzz0AjxezVmZjV1zlykK4', function(res) {
-
-  
-
-
-  res.on('data', function(d) {
-
- 
-
-    console.log(d.toString());
-
-    console.log("-----------");
-
-    console.log(JSON.parse(d));
-
-    console.log("distance: "+JSON.parse(d).rows[0].elements[0].distance.text);
-
-    console.log("duration: "+JSON.parse(d).rows[0].elements[0].duration.text);
-
-    
-
-  });
-
-
-
-  }).on('error', function(e) {
-
-  console.error(e);
-
-  });
+				}
+			});
+		} else {
+			res.render('driverProfile', { title: 'Please login to use the application' });
+		}
+	} else if(req.session.isAdmin){
+		res.render('adminHomepage', { title: 'Express' });
+	} else {
+		res.render('index', { title: 'Express' });
+	}
 
 };
-
-
-
-exports.rideDriverDetails = function(req, res){
-
-var query = "select dname from drivers";
-
-var user_source = "Colonnade South 4th Street San Jose CA United States";
-
-var msg_payload = { "query": query, user_source:user_source , "task":"driver_req" };
-
-
-console.log("query: "+msg_payload.query+" task: "+msg_payload.task);
-
-mq_client.make_request('driver_queue',msg_payload, function(err,results){
-
-
-console.log(results);
-
-if(err){
-
-throw err;
-
-}
-
-else 
-
-{
-
-for(var i in results){
-
-console.log(i.dname);
-
-}
-
-}  
-
-});
-
-
-};
-
-  

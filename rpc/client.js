@@ -13,6 +13,7 @@ function make_request(queue_name, msg_payload, callback){
 			console.log("response", response);
 			callback(null, response);
 		}
+		//connection.end();
 	});
 }
 
