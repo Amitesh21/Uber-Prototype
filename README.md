@@ -1,12 +1,18 @@
 ###UBER Application Prototype###
 
 •	Team leader. Collaborated with design and develop a web application similar to Uber.
+
 •	Developed UBER replica as a 3-Tier web application with modules including Customer, Driver, Admin and Dynamic billing.
+
 •	Used Advance Messaging Queuing Services (RabbitMQ) for decoupling the communication between client and server.
+
 •	Implemented NoSQL Caching and Connection Pooling for High Performance and used NoSQL database for scalability.
+
 •	MongoDB sharding and distributed data among MongoDB and MySQL.
+
 •	Added an additional functionality where the rider can choose among the available drivers based on the previous feedbacks and ratings.
 Technologies used: Node.js, Express, AngularJS, MongoDB, Bootstrap, MySQL, Redis, RabbitMQ, Chart.js, JMeter.
+
 
 Project Screenshots:
 
